@@ -618,6 +618,156 @@ flowchart TD
 
 ---
 
+## 7.5 三大经典 CNN 对比：ResNet50 vs MobileNetV2 vs Inception-ResNet-V2
+
+> **本节核心**：这是工业部署选型时最常被比较的"三大经典"。理解它们的**设计哲学差异**和**性能权衡**比知道参数数字更重要。
+
+### 三大架构的核心设计哲学
+
+| 架构 | 年份 | 核心思想 | 关键创新 |
+|------|------|----------|----------|
+| **ResNet50** | 2015 | **残差连接**解决深度网络退化 | $H(x) = F(x) + x$ |
+| **MobileNetV2** | 2018 | **倒残差 + 深度可分离卷积**实现极致轻量 | 先升维→DWConv→降维（与 ResNet 相反）|
+| **Inception-ResNet-V2** | 2016 | **Inception 多尺度 + ResNet 残差**融合 | 多分支卷积 + 残差 |
+
+### 7.5.1 ResNet50：残差连接的工业标准
+
+**核心**：当网络很深时，**直接学习 $H(x)$ 困难**，改为学习残差 $F(x) = H(x) - x$，再求和 $F(x) + x$。
+
+**Bottleneck Block**（ResNet50 用 3 层）：
+```
+输入 (256ch)
+    ↓
+1×1 Conv (256→64)   ← 降维
+    ↓
+3×3 Conv (64→64)    ← 主卷积
+    ↓
+1×1 Conv (64→256)   ← 升维
+    ↓
++ 残差连接
+    ↓
+输出 (256ch)
+```
+
+**参数量分析**：
+- 不用 bottleneck：3×3×256×256 × 3 = 1.77M 参数
+- 用 bottleneck：1×1×256×64 + 3×3×64×64 + 1×1×64×256 = 69K 参数
+- **节省 25× 参数**
+
+### 7.5.2 MobileNetV2：轻量化的极致
+
+**核心洞察**：ResNet 的 bottleneck 是"**降维→卷积→升维**"（中间窄两头宽），但 MobileNetV2 论文认为**降维后做非线性激活会丢失信息**。MobileNetV2 改为"**升维→卷积→降维**"（中间宽两头窄），中间**线性激活**（不 ReLU）。
+
+**Inverted Residual + Linear Bottleneck**：
+
+```
+输入 (24ch, 低维)
+    ↓
+1×1 Conv (24→144)   ← 升维 6×
+    ↓
+3×3 DWConv (144ch)  ← Depthwise 卷积（极轻量）
+    ↓
+1×1 Conv (144→24)   ← 降维（线性，无 ReLU！）
+    ↓
++ 残差连接
+    ↓
+输出 (24ch)
+```
+
+**Depthwise Separable Convolution**（MobileNet 系列核心）：
+
+```python
+# 标准卷积
+standard = nn.Conv2d(in_ch, out_ch, 3, padding=1)  # 参数量: in×out×9
+# 深度可分离卷积（拆成两步）
+depthwise = nn.Conv2d(in_ch, in_ch, 3, padding=1, groups=in_ch)  # 参数量: in×9
+pointwise = nn.Conv2d(in_ch, out_ch, 1)  # 参数量: in×out
+# 参数量: in×9 + in×out （vs 标准 in×out×9，省 ~9×）
+```
+
+**MobileNetV2 vs ResNet50**：
+- **参数减少 9×**（3.4M vs 25.6M）
+- **FLOPs 减少 6×**（300M vs 4.1B）
+- **精度只降 0.5-1%**（72.0% vs 76.1% on ImageNet）
+
+### 7.5.3 Inception-ResNet-V2：双剑合璧
+
+**核心思想**：Inception 的多尺度特征提取 + ResNet 的残差连接。
+
+**Inception-A Block**（含残差）：
+```
+输入
+    ↓
+1×1 Conv
+    ↓
+├─ 1×1 Conv → 3×3 Conv
+├─ 1×1 Conv → 3×3 Conv → 3×3 Conv  
+└─ 1×1 AvgPool → 1×1 Conv
+    ↓
+Concat (通道合并)
+    ↓
++ 残差
+    ↓
+输出
+```
+
+**Inception-ResNet-V2 的"魔法"**：
+- Inception 多分支让网络**自己学"用哪个尺度"**（1×1 vs 3×3 vs 5×5）
+- ResNet 残差让**训练 100+ 层的网络不崩溃**
+- 组合效果：ImageNet Top-5 95.5%（vs ResNet-50 的 92.9%）
+
+### 7.5.4 三大架构实测对比
+
+| 指标 | ResNet-50 | MobileNetV2 (1.0) | Inception-ResNet-V2 |
+|------|-----------|-------------------|-------------------|
+| **参数量** | 25.6 M | 3.4 M | 55.8 M |
+| **FLOPs** | 4.1 B | 0.30 B | 13.2 B |
+| **Top-1 Acc (ImageNet)** | 76.1% | 72.0% | 80.3% |
+| **Top-5 Acc (ImageNet)** | 92.9% | 91.0% | 95.5% |
+| **CPU 推理 (ms)** | 87 | **18** | 145 |
+| **GPU 推理 (ms)** | 8 | **3** | 22 |
+| **内存 (MB)** | 102 | 14 | 215 |
+| **适合场景** | 服务器精度优先 | 移动端实时 | 精度极致 |
+
+### 7.5.5 5 大选型决策
+
+```mermaid
+flowchart TD
+    A[你的部署场景？] --> B{是移动端/嵌入式？}
+    B -->|是| C[MobileNetV2/EfficientNet-B0<br>参数量 < 5M]
+    B -->|否| D{追求最高精度？}
+    D -->|是, 不计成本| E[Inception-ResNet-V2 / ConvNeXt-L<br>云端 GPU 推理]
+    D -->|否, 平衡| F[ResNet-50 / ConvNeXt-T<br>服务器经典选择]
+    style C fill:#90EE90
+    style E fill:#FFD700
+    style F fill:#87CEEB
+```
+
+### 7.5.6 工业级实战建议
+
+| 任务 | 首选 | 备选 |
+|------|------|------|
+| **移动端分类 (Android/iOS)** | MobileNetV2 | EfficientNet-B0 |
+| **Jetson 边缘部署** | ResNet-50 / EfficientNet | MobileNetV2 |
+| **服务器高精度** | ConvNeXt-Large | Inception-ResNet-V2 |
+| **检测 backbone** | ResNet-50 + FPN | Swin-T + FPN |
+| **分割 backbone** | ResNet-101 (dilated) | HRNet-W48 |
+| **GAN 生成器** | ResNet-style | - |
+
+### 7.5.7 关键经验
+
+> **经验 1**：**没有"最好"的架构，只有"最适合"的架构**。MobileNetV2 在服务器上跑精度不如 ResNet-50，但内存只有 1/7。
+> 
+> **经验 2**：**深度可分离卷积（DWConv）是边缘部署的"金标准"**——MobileNet / EfficientNet / GhostNet 都用。
+> 
+> **经验 3**：**残差连接是"训练深度网络"的必要条件**。没有残差，100+ 层网络训练必然退化。
+> 
+> **经验 4**：**Inception 的多尺度思想 → 后续的 SPP / ASPP / FPN 都是这一思想**。
+> 
+> **经验 5**：**ResNet50 仍然是工业"安全选择"**——生态最成熟、FPN 标配、TensorRT 优化完善。
+
+---
+
 ## 8. CNN 架构演进时间线
 
 ```

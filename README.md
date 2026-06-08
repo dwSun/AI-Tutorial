@@ -58,14 +58,14 @@
 |------|------|------|
 | PART0 | [0-1 人工智能概述](chapters/PART0-人工智能导论/0-1-人工智能概述.md) | 什么是AI？弱/强/超AI分类、图灵测试 |
 | PART0 | [0-2 人工智能发展史](chapters/PART0-人工智能导论/0-2-人工智能发展史.md) | 1950s感知机 → 深度学习崛起 → LLM时代（含 ML vs DL 对比、标准化） |
-| PART0 | [0-3 AI 学习与项目阶段指南](chapters/PART0-人工智能导论/0-3-AI学习与项目阶段指南.md) | 需求分析、环境分类、骨干选型、训练调优、部署监控 ⭐新增 |
+| PART0 | [0-3 AI 学习与项目阶段指南](chapters/PART0-人工智能导论/0-3-AI学习与项目阶段指南.md) | 需求分析、环境分类、骨干选型、训练调优、部署监控 + **训练数据量快速决策**（5.3 节）⭐新增 |
 | PART1 | [1-1 线性代数基础](chapters/PART1-数学基础/1-1-线性代数基础.md) | 向量、矩阵、特征值、SVD、张量 |
 | PART1 | [1-2 概率论基础](chapters/PART1-数学基础/1-2-概率论基础.md) | 概率分布、贝叶斯定理、MLE |
 | PART1 | [1-3 微积分基础](chapters/PART1-数学基础/1-3-微积分基础.md) | 导数、链式法则、梯度下降 |
 | PART1 | [1-4 信息论基础](chapters/PART1-数学基础/1-4-信息论基础.md) | 熵、交叉熵、KL散度 |
-| PART2 | [2-1 机器学习概述](chapters/PART2-机器学习基础/2-1-机器学习概述.md) | 监督/无监督/半监督/弱监督/自监督 |
+| PART2 | [2-1 机器学习概述](chapters/PART2-机器学习基础/2-1-机器学习概述.md) | 监督/无监督/半监督/弱监督/自监督 + **聚类分析**（K-Means/DBSCAN/层次）⭐新增 |
 | PART2 | [2-2 经典机器学习算法](chapters/PART2-机器学习基础/2-2-经典机器学习算法.md) | 线性回归、决策树、SVM、朴素贝叶斯、KNN |
-| PART2 | [2-3 模型评估与验证](chapters/PART2-机器学习基础/2-3-模型评估与验证.md) | 交叉验证、混淆矩阵、ROC/AUC、过拟合/欠拟合 + **混淆矩阵驱动的数据清洗实战**（3.8 节）⭐新增 |
+| PART2 | [2-3 模型评估与验证](chapters/PART2-机器学习基础/2-3-模型评估与验证.md) | 交叉验证、混淆矩阵、ROC/AUC、过拟合/欠拟合 + **混淆矩阵驱动的数据清洗实战**（3.8 节）+ **Epoch/Batch/Iteration 概念 + 学习曲线诊断 + 欠拟合 7 种方案**（3.9-3.11）⭐⭐新增 |
 | PART2 | [2-4 特征工程](chapters/PART2-机器学习基础/2-4-特征工程.md) | 特征提取/选择/降维、PCA、标准化（含 VOC/COCO、Albumentations、K 折） |
 
 ### 🔥 核心篇（深度学习）
@@ -74,13 +74,13 @@
 |------|------|------|
 | PART3 | [3-1 神经网络基础](chapters/PART3-深度学习核心/3-1-神经网络基础.md) | 感知机、MLP、权重偏差 |
 | PART3 | [3-2 激活函数](chapters/PART3-深度学习核心/3-2-激活函数.md) | Sigmoid、ReLU、Tanh、GELU |
-| PART3 | [3-3 损失函数](chapters/PART3-深度学习核心/3-3-损失函数.md) | MSE、交叉熵、对比损失 |
+| PART3 | [3-3 损失函数](chapters/PART3-深度学习核心/3-3-损失函数.md) | MSE、交叉熵、对比损失 + **交叉熵直观解释 + 信息论视角 + Label Smoothing + Focal Loss**（3.6 节）⭐新增 |
 | PART3 | [3-4 正向传播与反向传播](chapters/PART3-深度学习核心/3-4-正向传播与反向传播.md) | 计算图、链式法则、梯度消失/爆炸 |
-| PART3 | [3-5 优化算法](chapters/PART3-深度学习核心/3-5-优化算法.md) | GD/SGD、Momentum、Adam、AdamW、学习率策略 |
+| PART3 | [3-5 优化算法](chapters/PART3-深度学习核心/3-5-优化算法.md) | GD/SGD、Momentum、Adam、AdamW、学习率策略 + **12 种 SGD 优化器变体大全**（5.5 节）⭐新增 |
 | PART3 | [3-6 正则化](chapters/PART3-深度学习核心/3-6-正则化.md) | 过拟合/欠拟合、L1/L2、Dropout、Early Stopping |
-| PART4 | [4-1 CNN原理](chapters/PART4-卷积神经网络CNN/4-1-CNN原理.md) | 卷积核、步幅、填充、感受野 |
+| PART4 | [4-1 CNN原理](chapters/PART4-卷积神经网络CNN/4-1-CNN原理.md) | 卷积核、步幅、填充、感受野 + **卷积层如何提取特征 + RNN/CNN/Transformer 三大特征提取器对比** ⭐⭐新增 |
 | PART4 | [4-2 CNN核心操作](chapters/PART4-卷积神经网络CNN/4-2-CNN核心操作.md) | 池化、BN、5种归一化（BN/LN/IN/GN/SN）、全连接层 |
-| PART4 | [4-3 经典CNN架构](chapters/PART4-卷积神经网络CNN/4-3-经典CNN架构.md) | LeNet→AlexNet→VGG→ResNet→MobileNet→DenseNet→RepVGG |
+| PART4 | [4-3 经典CNN架构](chapters/PART4-卷积神经网络CNN/4-3-经典CNN架构.md) | LeNet→AlexNet→VGG→ResNet→MobileNet→DenseNet→RepVGG + **ResNet50 vs MobileNetV2 vs Inception-ResNet-V2 三大对比** ⭐新增 |
 | PART4 | [4-4 CNN 应用全景](chapters/PART4-卷积神经网络CNN/4-4-CNN应用.md) | 四大任务总览 + 分类 + 检测 + 语义分割 + 实例分割 + 骨干映射 + **FPN 深度专题** + FPN 家族演进 + 训练技巧 + 数据集 + 损失/指标（1200+ 行）⭐重写 |
 | PART4 | [4-5 现代 CNN 骨干综述](chapters/PART4-卷积神经网络CNN/4-5-现代CNN骨干综述.md) | ResNet-D/RegNet/RepVGG/EfficientNet/ConvNeXt ⭐新增 |
 | PART4 | [4-6 注意力机制全景](chapters/PART4-卷积神经网络CNN/4-6-注意力机制全景.md) | SE/ECA/CBAM/CA/SimAM/SK 全覆盖 ⭐新增 |
@@ -102,7 +102,7 @@
 | 部分 | 章节 | 内容 |
 |------|------|------|
 | PART7 | [7-1 LLM基础与主流模型](chapters/PART7-大语言模型LLM/7-1-LLM基础与主流模型.md) | GPT-4/Claude/LLaMA/Qwen/DeepSeek |
-| PART7 | [7-2 LLM训练技术](chapters/PART7-大语言模型LLM/7-2-LLM训练技术.md) | 预训练、SFT、RLHF、DPO |
+| PART7 | [7-2 LLM训练技术](chapters/PART7-大语言模型LLM/7-2-LLM训练技术.md) | 预训练、SFT、RLHF、DPO + **8 种 PEFT Finetune 方法大全**（LoRA/QLoRA/Adapter/BitFit）⭐新增 |
 | PART7 | [7-3 Prompt Engineering](chapters/PART7-大语言模型LLM/7-3-Prompt-Engineering.md) | Zero-shot/Few-shot/CoT/结构化输出/52套模板/去AI味 |
 | PART7 | [7-4 LLM进阶技术](chapters/PART7-大语言模型LLM/7-4-LLM进阶技术.md) | LoRA、QLoRA、Flash Attention、RAG |
 | PART7 | [7-5 本地大模型与 Ollama 实战](chapters/PART7-大语言模型LLM/7-5-本地大模型与Ollama实战.md) | Ollama 安装/部署/Modelfile/Wechaty/RAG ⭐新增 |
@@ -121,7 +121,7 @@
 
 | 部分 | 章节 | 内容 |
 |------|------|------|
-| PART10 | [10-1 学习率与Batch-Size](chapters/PART10-训练优化与部署/10-1-学习率与Batch-Size.md) | Warmup、Cosine衰减、线性缩放 |
+| PART10 | [10-1 学习率与Batch-Size](chapters/PART10-训练优化与部署/10-1-学习率与Batch-Size.md) | Warmup、Cosine衰减、线性缩放 + **Large Batch 与 LR 关系深度剖析 + 九大学习率衰减策略**（7-8 节）⭐新增 |
 | PART10 | [10-2 混合精度与分布式训练](chapters/PART10-训练优化与部署/10-2-混合精度与分布式训练.md) | FP16/BF16、DDP、FSDP、DeepSpeed |
 | PART10 | [10-3 模型压缩与优化](chapters/PART10-训练优化与部署/10-3-模型压缩与优化.md) | 知识蒸馏、剪枝、量化、TensorRT |
 | PART10 | [10-4 模型部署实战](chapters/PART10-训练优化与部署/10-4-模型部署实战.md) | ONNX/TorchScript/Docker/OpenVINO/TFLite/TensorRT/ONNX Runtime |
@@ -129,12 +129,13 @@
 | PART10 | [10-6 OpenMMLab 生态与 MMDeploy 部署](chapters/PART10-训练优化与部署/10-6-OpenMMLab生态与MMDeploy部署.md) | MMDet/MMSeg/MMDeploy 多后端部署 ⭐新增 |
 | PART10 | [10-7 边缘部署与 Jetson 实战](chapters/PART10-训练优化与部署/10-7-边缘部署与Jetson实战.md) | Jetson 谱系/TensorRT/性能调优 ⭐新增 |
 | [10-8 训练硬件选型指南](chapters/PART10-训练优化与部署/10-8-训练硬件选型指南.md) | 个人开发机/CNN 工作站/4-GPU 节点/数据中心/**LLM 个人训练不了** + 云租+二手 + 选型决策树 + 2024-2026 推荐配置 + **算力单位 (TOPS/FLOPS/FLOPs) + 算力 vs 显存非线性 + A100 Tensor Core 黑魔法 + CUDA Compute Capability 80+ GPU 全表** ⭐⭐新增 |
+| [10-9 训练实战技巧大全](chapters/PART10-训练优化与部署/10-9-训练实战技巧大全.md) | **Google 43 条经验法则** + **Kaggle 39 场实战技巧** + SGD 11 种优化器变体 + Finetune 7 种 PEFT + Snapshot Ensembles + Softmax 温度 T + 训练 Tricks 精华 + 10 步 Checklist ⭐新增 |
 
 ### 🎯 应用篇（行业落地）
 
 | 部分 | 章节 | 内容 |
 |------|------|------|
-| PART11 | [11-1 目标检测进阶](chapters/PART11-计算机视觉进阶/11-1-目标检测进阶.md) | R-CNN→YOLO全系列→Anchor-Free→IoU系列损失→遮挡 + **数据标注原则 1.3 节** (Tight Box/IAA/预标注 SOP) ⭐新增 |
+| PART11 | [11-1 目标检测进阶](chapters/PART11-计算机视觉进阶/11-1-目标检测进阶.md) | R-CNN→YOLO全系列→Anchor-Free→IoU系列损失→遮挡 + **数据标注原则 1.3 节** + **数据增强详解（Mosaic 4 图拼接）1.4 节** ⭐⭐新增 |
 | PART11 | [11-2 语义分割与实例分割](chapters/PART11-计算机视觉进阶/11-2-语义分割与实例分割.md) | FCN/U-Net/DeepLab/Mask R-CNN/SegNet/GCN/BCNet/Mask2Former |
 | PART11 | [11-3 图像生成与编辑](chapters/PART11-计算机视觉进阶/11-3-图像生成与编辑.md) | ESRGAN/CycleGAN + CAM/Grad-CAM 可解释性 |
 | PART11 | [11-4 神经渲染与3D视觉](chapters/PART11-计算机视觉进阶/11-4-神经渲染与3D视觉.md) | NeRF、3D Gaussian Splatting、SLAM |
@@ -145,12 +146,12 @@
 | PART12 | [12-1 多模态学习](chapters/PART12-多模态与Agent/12-1-多模态学习.md) | BLIP、LLaVA、GPT-4V、Gemini |
 | PART12 | [12-2 AI Agent 基础](chapters/PART12-多模态与Agent/12-2-AI-Agent基础.md) | 自主规划、Function Calling、记忆系统 |
 | PART12 | [12-3 Multi-Agent与具身智能](chapters/PART12-多模态与Agent/12-3-Multi-Agent与具身智能.md) | 多智能体协作、VLA模型、具身AI |
-| PART13 | [13-1 AI for Science](chapters/PART13-行业应用与前沿/13-1-AI-for-Science.md) | AlphaFold、GraphCast、材料发现 |
-| PART13 | [13-2 自动驾驶AI](chapters/PART13-行业应用与前沿/13-2-自动驾驶AI.md) | 端到端、BEV感知、占用网络 |
-| PART13 | [13-3 地理空间AI](chapters/PART13-行业应用与前沿/13-3-地理空间AI.md) | 遥感影像、GIS+深度学习 |
-| PART13 | [13-4 时间序列AI](chapters/PART13-行业应用与前沿/13-4-时间序列AI.md) | Transformer时序预测、金融量化 |
+| PART13 | [13-1 AI for Science](chapters/PART13-行业应用与前沿/13-1-AI-for-Science.md) | AlphaFold 2 + **AlphaFold 3 + Boltz-1 + ESM-3 + AI 制药完整链路**（§5）⭐新增 |
+| PART13 | [13-2 自动驾驶AI](chapters/PART13-行业应用与前沿/13-2-自动驾驶AI.md) | 端到端、BEV感知、占用网络 + **World Model + VLM-AD（GAIA-2/DriveVLM/EMMA）**（§5）⭐新增 |
+| PART13 | [13-3 地理空间AI](chapters/PART13-行业应用与前沿/13-3-地理空间AI.md) | 遥感影像、GIS+深度学习 + **GeoAI 前沿（SatMAE/Prithvi/GeoChat）+ DOTA 旋转框**（§5）⭐新增 |
+| PART13 | [13-4 时间序列AI](chapters/PART13-行业应用与前沿/13-4-时间序列AI.md) | Transformer时序预测、金融量化 + **时序基础模型（Chronos/Mamba/Time-LLM/TimeGPT）**（§5）⭐新增 |
 | PART13 | [13-5 World Model与AI Safety](chapters/PART13-行业应用与前沿/13-5-World-Model与AI-Safety.md) | 世界模型、具身智能、Constitutional AI |
-| PART13 | [13-6 数字孪生 ⭐补充](chapters/PART13-行业应用与前沿/13-6-数字孪生.md) | 数字孪生、仿真、工业应用 |
+| PART13 | [13-6 数字孪生 ⭐补充](chapters/PART13-行业应用与前沿/13-6-数字孪生.md) | 数字孪生、仿真、工业应用 + **LLM/World Model/PINN 3 大新范式 + 10 大工业平台**（§8）⭐新增 |
 
 ### 🛡️ 伦理篇（安全责任）
 
@@ -173,11 +174,11 @@
 | 项目 | 数值 |
 |------|------|
 | 总部分数 | 15 |
-| 总章节数 | 78 |
+| 总章节数 | 79 |
 | 补充阅读章节数 | 14 |
 | 附录 | 1（模型选型速查表） |
-| 总行数 | ~43,368 行 |
-| Mermaid 图表 | 363 个 |
+| 总行数 | ~47,481 行 |
+| Mermaid 图表 | 378 个 |
 | 涵盖领域 | 数学基础 → ML → DL → CV → NLP → LLM → 多模态 → Agent → 行业应用 → AI伦理 → 工程实战 → 实验写作 |
 | ML-DL 素材覆盖率 | ~60% (从 ~25% 提升) |
 | 前沿技术覆盖 | 2024-2026 主流：GRPO / DPO 变体 / V-JEPA 2 / Cosmos / FA3 / Mixture of Depths / Mamba / DiT / Flow Matching / Mechanistic Interpretability / Sleeper Agents / Computer Use / Deep Research 等 |

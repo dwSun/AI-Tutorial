@@ -224,6 +224,207 @@ $$\mathcal{L}_{\text{KTO}} = \lambda_y \cdot (1 - \sigma(\beta \cdot r_\theta(x,
 | **SimPO** | 不需要 | 配对 | 无长度偏见、推理时一致 | Llama 3.3 |
 | **KTO** | 不需要 | 单条 (好/坏) | 数据易得、鲁棒 | Mistral 系列 |
 
+### 4.5 Finetune 方法大全：8 种 PEFT 详解
+
+> **核心问题**：全参微调对 7B+ 模型显存要求 120GB+。如何用 24-80GB 显卡做"有效"的微调？**PEFT（Parameter-Efficient Fine-Tuning）** 是答案。
+
+#### 4.5.1 8 种主流 PEFT 方法对比
+
+| 方法 | 训练参数 | 显存 (7B) | 速度 | 效果 | 适合 |
+|------|----------|-----------|------|------|------|
+| **Full Fine-tune** | 100% | ~120 GB | 慢 | ⭐⭐⭐⭐⭐ SOTA | 4×A100+ |
+| **LoRA** | 0.1-5% | ~24 GB | 快 | ⭐⭐⭐⭐ | 标准选择 |
+| **QLoRA** | 0.1-5% (4-bit) | ~6 GB | 快 | ⭐⭐⭐⭐ | 24GB 显卡 |
+| **Adapter** | 1-5% | ~30 GB | 中 | ⭐⭐⭐ | 历史方案 |
+| **Prefix Tuning** | 0.1% | ~20 GB | 中 | ⭐⭐⭐ | 文本生成 |
+| **Prompt Tuning** | 0.001% | ~16 GB | 快 | ⭐⭐ | Few-shot |
+| **P-Tuning v2** | 0.1-1% | ~20 GB | 中 | ⭐⭐⭐⭐ | 多任务 |
+| **BitFit (bias only)** | 0.05% | ~14 GB | 极快 | ⭐⭐ | 极小显存 |
+
+#### 4.5.2 LoRA 原理
+
+**核心**：在原权重旁加一个低秩分解矩阵：
+
+$$
+W_{\text{new}} = W + \Delta W = W + B \cdot A
+$$
+
+其中 $A \in \mathbb{R}^{r \times d}$, $B \in \mathbb{R}^{d \times r}$, $r \ll d$（rank 通常 8-64）。
+
+```python
+from peft import LoraConfig, get_peft_model, TaskType
+
+config = LoraConfig(
+    r=16,                     # rank
+    lora_alpha=32,            # 缩放因子
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM,
+)
+model = get_peft_model(base_model, config)
+model.print_trainable_parameters()
+# trainable: 4,194,304 || all: 6,742,609,920 || trainable%: 0.062%
+```
+
+**LoRA 关键超参**：
+- **rank (r)**：8 / 16 / 32 / 64（越大越接近全参）
+- **alpha**：通常 2r（缩放因子）
+- **target_modules**：选 q_proj / v_proj（最小）；q,k,v,o_proj（推荐）；所有 Linear（最全）
+- **dropout**：0.05-0.1
+
+#### 4.5.3 QLoRA：低显存微调（⭐ 24GB 显卡首选）
+
+**核心**：4-bit 量化 + LoRA
+
+```python
+from transformers import BitsAndBytesConfig, AutoModelForCausalLM
+from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
+
+# 1. 4-bit 量化加载
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",          # NormalFloat 4-bit
+    bnb_4bit_compute_dtype=torch.bfloat16,  # 计算用 BF16
+    bnb_4bit_use_double_quant=True,     # 双重量化
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    "meta-llama/Llama-2-7b-hf",
+    quantization_config=bnb_config,
+    device_map="auto",
+)
+model = prepare_model_for_kbit_training(model)
+
+# 2. 加 LoRA
+lora_config = LoraConfig(
+    r=16, lora_alpha=32,
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=0.05, bias="none", task_type="CAUSAL_LM"
+)
+model = get_peft_model(model, lora_config)
+
+# 3. 训练：7B 模型只需 6GB 显存（vs 全量 120GB）
+```
+
+**QLoRA 关键技巧**：
+- **NF4 量化**（比 FP4 更适合正态分布权重）
+- **双重量化**（省更多内存）
+- **Paged Optimizer**（防止显存峰值 OOM）
+
+#### 4.5.4 LoRA 变体
+
+| 变体 | 改进 | 来源 |
+|------|------|------|
+| **QLoRA** | 4-bit 量化 + LoRA | Dettmers 2023 |
+| **LoRA+** | 不同层用不同 LR | Hayou 2024 |
+| **AdaLoRA** | 自适应 rank 分配 | Zhang 2023 |
+| **DoRA** | 分解方向 + 幅度 | Liu 2024 |
+| **rsLoRA** | rank-stabilized | Kalajdzievski 2023 |
+| **LongLoRA** | 扩展上下文 | Chen 2024 |
+| **LoRA-FA** | 冻结 A 只训 B | Zhang 2023 |
+| **PiSSA** | 主奇异值初始化 | Meng 2024 |
+
+#### 4.5.5 Adapter 与 Prefix Tuning
+
+**Adapter**（Houlsby 2019）：在 Transformer 层插入小型瓶颈网络
+
+```python
+class Adapter(nn.Module):
+    def __init__(self, d_model, bottleneck=64):
+        super().__init__()
+        self.down = nn.Linear(d_model, bottleneck)
+        self.up = nn.Linear(bottleneck, d_model)
+        self.act = nn.GELU()
+    
+    def forward(self, x):
+        return x + self.up(self.act(self.down(x)))
+```
+
+**Prefix Tuning**（Li 2021）：在每个 attention 层前加可学习 prefix
+
+```python
+# Prefix 是 [B, prefix_len, d_model] 的可学习向量
+prefix = nn.Parameter(torch.randn(batch_size, 10, d_model))
+# 加到 K, V 上
+K_with_prefix = torch.cat([prefix, K], dim=1)
+```
+
+#### 4.5.6 Prompt Tuning vs P-Tuning v2
+
+| 方法 | 改什么 | 参数量 | 效果 |
+|------|--------|--------|------|
+| **Prompt Tuning** | 只在 input 加 soft prompt | 极小 (0.001%) | 仅大模型有效 |
+| **P-Tuning v2** | 每层都加 soft prompt | 小 (0.1-1%) | ⭐ 多任务优 |
+
+#### 4.5.7 BitFit：只调 Bias
+
+> 神奇发现：**只训练 bias 参数（占总参数 0.05%）就能在小样本任务上达到全参 95% 的效果**。
+
+```python
+def bitfit_params(model):
+    """只返回 bias 参数"""
+    params = []
+    for name, param in model.named_parameters():
+        if 'bias' in name:
+            params.append(param)
+    return params
+
+optimizer = torch.optim.AdamW(bitfit_params(model), lr=1e-3)
+```
+
+#### 4.5.8 选型决策表
+
+| 显存 | 模型 | 推荐方法 |
+|------|------|----------|
+| 8 GB | ≤3B | BitFit / Prompt Tuning |
+| 12 GB | 7B | QLoRA r=8 |
+| 16 GB | 7B | QLoRA r=16 / LoRA r=8 |
+| 24 GB | 7B-13B | QLoRA r=32 / LoRA r=16 |
+| 40 GB | 13B-30B | LoRA r=32 |
+| 80 GB | 70B | LoRA r=64 / 全参 |
+| 4×80 GB | 70B+ | 全参微调 |
+
+#### 4.5.9 8 种方法工业实践对比
+
+```python
+# 实战速查：选哪个？
+
+# 1. 闭集分类 + 24GB → QLoRA
+model = load_4bit_model("Llama-2-7b")
+model = add_lora(model, r=16)
+
+# 2. 多任务学习 + 80GB → Prefix Tuning
+model = load_model("Llama-2-7b")
+model = add_prefix_tuning(model, prefix_len=10)
+
+# 3. Few-shot + 8GB → Prompt Tuning
+model = load_model("Llama-2-7b")
+model = add_soft_prompt(model, n_tokens=20)
+
+# 4. 完全多任务 + 12GB → P-Tuning v2
+model = load_model("Llama-2-7b")
+model = add_p_tuning_v2(model)
+
+# 5. 极小显存 + 8GB → BitFit
+optimizer = AdamW(bitfit_params(model), lr=1e-3)
+
+# 6. 最大效果 + 4×80GB → Full Fine-tune
+optimizer = AdamW(model.parameters(), lr=3e-4)
+```
+
+#### 4.5.10 PEFT 选型 5 大金句
+
+> **金句 1**：**QLoRA + 24GB 显卡 = 7B 模型微调的"工业民主化"**。
+> 
+> **金句 2**：**LoRA r=16 + alpha=32 是 sweet spot**，r=8 够用，r=64 才接近全参。
+> 
+> **金句 3**：**target_modules 选 q,k,v,o_proj 比只选 q,v 略好**（+0.3%），全 Linear 最全。
+> 
+> **金句 4**：**PEFT 不是免费的午餐**——效果通常比全参低 1-3%，但**显存省 90% + 时间省 70%**。
+> 
+> **金句 5**：**组合使用**：QLoRA + DoRA + rsLoRA 是 2024-2025 最强组合。
+
 ---
 
 ## 其他训练技术
