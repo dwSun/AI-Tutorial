@@ -67,6 +67,7 @@
 | PART2 | [2-2 经典机器学习算法](chapters/PART2-机器学习基础/2-2-经典机器学习算法.md) | 线性回归、决策树、SVM、朴素贝叶斯、KNN |
 | PART2 | [2-3 模型评估与验证](chapters/PART2-机器学习基础/2-3-模型评估与验证.md) | 交叉验证、混淆矩阵、ROC/AUC、过拟合/欠拟合 + **混淆矩阵驱动的数据清洗实战**（3.8 节）+ **Epoch/Batch/Iteration 概念 + 学习曲线诊断 + 欠拟合 7 种方案**（3.9-3.11）⭐⭐新增 |
 | PART2 | [2-4 特征工程](chapters/PART2-机器学习基础/2-4-特征工程.md) | 特征提取/选择/降维、PCA、标准化（含 VOC/COCO、Albumentations、K 折） |
+| PART2 | [2-5 推荐系统与协同过滤](chapters/PART2-机器学习基础/2-5-推荐系统与协同过滤.md) | 协同过滤、矩阵分解、Embedding、NCF、双塔模型、冷启动 ⭐新增 |
 
 ### 🔥 核心篇（深度学习）
 
@@ -78,6 +79,7 @@
 | PART3 | [3-4 正向传播与反向传播](chapters/PART3-深度学习核心/3-4-正向传播与反向传播.md) | 计算图、链式法则、梯度消失/爆炸 |
 | PART3 | [3-5 优化算法](chapters/PART3-深度学习核心/3-5-优化算法.md) | GD/SGD、Momentum、Adam、AdamW、学习率策略 + **12 种 SGD 优化器变体大全**（5.5 节）⭐新增 |
 | PART3 | [3-6 正则化](chapters/PART3-深度学习核心/3-6-正则化.md) | 过拟合/欠拟合、L1/L2、Dropout、Early Stopping |
+| PART3 | [3-7 自编码器](chapters/PART3-深度学习核心/3-7-自编码器.md) | AE/VAE/卷积AE/去噪AE、重建损失、与PCA和扩散模型的关系 ⭐新增 |
 | PART4 | [4-1 CNN原理](chapters/PART4-卷积神经网络CNN/4-1-CNN原理.md) | 卷积核、步幅、填充、感受野 + **卷积层如何提取特征 + RNN/CNN/Transformer 三大特征提取器对比** ⭐⭐新增 |
 | PART4 | [4-2 CNN核心操作](chapters/PART4-卷积神经网络CNN/4-2-CNN核心操作.md) | 池化、BN、5种归一化（BN/LN/IN/GN/SN）、全连接层 |
 | PART4 | [4-3 经典CNN架构](chapters/PART4-卷积神经网络CNN/4-3-经典CNN架构.md) | LeNet→AlexNet→VGG→ResNet→MobileNet→DenseNet→RepVGG + **ResNet50 vs MobileNetV2 vs Inception-ResNet-V2 三大对比** ⭐新增 |
@@ -159,6 +161,7 @@
 |------|------|------|
 | PART14 | [14-1 AI伦理与对齐](chapters/PART14-AI伦理与安全/14-1-AI伦理与对齐.md) | AI伦理原则/RLHF/Constitutional AI/偏见案例/标准化白皮书 |
 | PART14 | [14-2 AI安全与对抗](chapters/PART14-AI伦理与安全/14-2-AI安全与对抗.md) | FGSM/PGD攻击、数据投毒、差分隐私 |
+| PART14 | [14-3 数据伦理](chapters/PART14-AI伦理与安全/14-3-数据伦理.md) | 数据偏见/知情同意/标注工人权益/Deepfake/信息茧房/负责任AI ⭐新增 |
 | PART15 | [15-1 论文阅读与实验报告写作](chapters/PART15-论文阅读与实验写作/15-1-论文阅读与实验报告写作.md) | 实验报告结构、论文三遍读法、模板 ⭐新增 |
 
 ### 📚 附录
@@ -174,7 +177,7 @@
 | 项目 | 数值 |
 |------|------|
 | 总部分数 | 15 |
-| 总章节数 | 79 |
+| 总章节数 | 82 |
 | 补充阅读章节数 | 14 |
 | 附录 | 1（模型选型速查表） |
 | 总行数 | ~47,481 行 |
@@ -188,8 +191,8 @@
 ## 🔗 快速导航
 
 - [数学基础](chapters/PART1-数学基础/) - 线性代数、概率论、微积分、信息论
-- [机器学习](chapters/PART2-机器学习基础/) - 经典算法、模型评估、特征工程
-- [深度学习](chapters/PART3-深度学习核心/) - 神经网络、激活函数、优化器
+- [机器学习](chapters/PART2-机器学习基础/) - 经典算法、模型评估、特征工程、推荐系统
+- [深度学习](chapters/PART3-深度学习核心/) - 神经网络、激活函数、优化器、自编码器
 - [CNN](chapters/PART4-卷积神经网络CNN/) - 卷积操作、经典架构、注意力
 - [RNN](chapters/PART5-序列建模与循环网络/) - 序列建模、LSTM/GRU、Seq2Seq
 - [Transformer](chapters/PART6-Transformer与预训练/) - 注意力机制、BERT、GPT
@@ -200,7 +203,7 @@
 - [计算机视觉](chapters/PART11-计算机视觉进阶/) - 目标检测/分割/跟踪/异常检测/视觉应用
 - [多模态与Agent](chapters/PART12-多模态与Agent/) - 多模态学习、AI Agent
 - [行业应用](chapters/PART13-行业应用与前沿/) - AI for Science、自动驾驶、Geo AI
-- [AI伦理](chapters/PART14-AI伦理与安全/) - 对齐问题、对抗安全、标准化
+- [AI伦理](chapters/PART14-AI伦理与安全/) - 对齐问题、对抗安全、数据伦理、标准化
 - [论文与实验](chapters/PART15-论文阅读与实验写作/) - 论文阅读、实验报告
 
 ---
@@ -212,6 +215,8 @@
 曾经一直说要花点时间整理一下，做一个系统性的，完整的扫盲教程，但是苦于没有足够的精力，以及个人的懒惰（当然也有一部分是因为版权的束缚）。现在有了AI agent，吩咐我的agent，花了几块钱的token，整理了一下。重新编写了所有内容，重绘所有的图表，提取知识点，精炼内容等等。
 
 2026 年 6 月 3 日，根据 ML-DL 参考目录（444 个 .md 文件）进行了全面审计和补全，吸收了 80% 以上未利用素材，包括 OpenMMLab 生态、Jetson 边缘部署、Ollama 本地大模型、ReID 行人重识别、目标跟踪 (SORT/ByteTrack)、异常检测 (PatchCore)、现代 CNN 骨干 (RegNet/RepVGG/ConvNeXt)、注意力全景 (SE/CBAM/CA/SK)、智能问答 Pipeline、Grad-CAM 可解释性、TF32/INT8 实测、AI 标准化白皮书等。
+
+2026 年 6 月 24 日，根据 fast.ai Practical Deep Learning for Coders 课程（25 Lessons + Data Ethics）进行内容审计，补充了推荐系统与协同过滤、自编码器、数据伦理、Mean Shift 聚类、Random Erasing、扩散模型图像编辑（Dreambooth/Textual Inversion/DiffEdit/Imagic）、FID/KID 评估指标、Hugging Face Spaces + Gradio 快速部署等 fast.ai 涉及但教程缺失的核心内容。
 
 现在，公开发布共享。
 

@@ -229,13 +229,69 @@ DDIM 使得在消费级 GPU 上生成一张图像从几分钟缩短到几秒钟�
 
 ---
 
-## 10. Flow Matching（流动匹配）：SD3 的核心技术
+## 10. 生成模型评估指标：FID 与 KID
+
+评估生成图像质量是生成式 AI 的核心挑战。与分类任务不同，生成模型没有唯一"正确答案"。
+
+### 10.1 FID（Fréchet Inception Distance）
+
+**FID** 是生成模型评估的**黄金标准**。它衡量生成图像分布与真实图像分布之间的距离：
+
+1. 用预训练的 Inception-v3 网络提取真实图像和生成图像的特征
+2. 假设特征服从高斯分布，计算两个高斯分布之间的 Fréchet 距离
+
+$$
+FID = ||\mu_r - \mu_g||^2 + Tr(\Sigma_r + \Sigma_g - 2\sqrt{\Sigma_r \Sigma_g})
+$$
+
+其中 $\mu$ 和 $\Sigma$ 分别是真实图像（r）和生成图像（g）特征的均值和协方差矩阵。
+
+**解读**：
+- FID 越低越好
+- FID = 0 表示两个分布完全相同（理论最优）
+- 当前 SOTA 文生图模型的 FID 在 5-15 之间
+
+### 10.2 KID（Kernel Inception Distance）
+
+**KID** 是 FID 的改进版，**不需要假设特征服从高斯分布**，通过核函数直接估计最大均值差异（MMD）。
+
+**优势**：
+- 对样本量不敏感（FID 在小样本时偏差大）
+- 无偏估计：期望值等于真实距离
+- 更适合评估小批量生成样本
+
+### 10.3 实践代码
+
+```python
+from torchmetrics.image.fid import FrechetInceptionDistance
+from torchmetrics.image.kid import KernelInceptionDistance
+
+fid = FrechetInceptionDistance(feature=2048)
+kid = KernelInceptionDistance(subset_size=50)
+
+# 更新真实图像统计
+fid.update(real_images, real=True)
+kid.update(real_images, real=True)
+
+# 更新生成图像统计
+fid.update(fake_images, real=False)
+kid.update(fake_images, real=False)
+
+print(f"FID: {fid.compute():.2f}")
+print(f"KID: {kid.compute()[0]:.4f}")  # 返回 (mean, std)
+```
+
+> **注意**：FID/KID 只衡量**统计相似性**，不衡量语义一致性。一张"正确风格但内容错误"的图像可能获得很好的 FID，因此人类评估（如用户偏好研究）仍然不可替代。
+
+---
+
+## 11. Flow Matching（流动匹配）：SD3 的核心技术
 
 **提出**：Lipman et al. (2023)，Esser et al. 把 Rectified Flow 推到 SD3（arXiv:2403.03206）
 
 **核心动机**：传统 DDPM 的扩散过程是**随机微分方程（SDE）**——路径弯曲、采样需要 20-50 步。Flow Matching 把过程变成**普通微分方程（ODE）**——直线路径，可用少步数（4-8 步）生成。
 
-### 10.1 从 Score Matching 到 Flow Matching
+### 11.1 从 Score Matching 到 Flow Matching
 
 | 范式 | 数学形式 | 代表 | 路径 |
 |------|----------|------|------|
@@ -248,7 +304,7 @@ $$
 x_t = (1 - t) \cdot x_0 + t \cdot \varepsilon, \quad t \in [0, 1]
 $$
 
-### 10.2 Flow Matching 损失
+### 11.2 Flow Matching 损失
 
 模型 $v_\theta(x_t, t)$ 预测**瞬时速度**（即 $x_t$ 沿时间的变化率）：
 
@@ -261,7 +317,7 @@ $$
 - Flow Matching 预测**速度** $v = \varepsilon - x_0$
 - 两者目标**等价**（数学上），但 FM 训练更稳定、采样更高效
 
-### 10.3 为什么 SD3 用 Rectified Flow
+### 11.3 为什么 SD3 用 Rectified Flow
 
 | 优势 | 说明 |
 |------|------|
@@ -290,7 +346,7 @@ def sample_flow_matching(model, num_steps=4, ...):
     return x
 ```
 
-### 10.4 Stable Diffusion 3 的重加权 RF
+### 11.4 Stable Diffusion 3 的重加权 RF
 
 SD3 论文的关键工程创新——**重加权噪声调度**：训练时给轨迹中段更多权重（这些位置学起来更难）。
 
@@ -308,7 +364,7 @@ def training_weights(t, sampling_schedule):
 
 **效果**：在 60 种扩散轨迹对比中，SD3 的 RF 变体**始终优于 LDM、EDM、ADM**。
 
-### 10.5 Flow Matching vs DDPM：完整对比
+### 11.5 Flow Matching vs DDPM：完整对比
 
 | 维度 | DDPM | Flow Matching |
 |------|------|---------------|
@@ -322,7 +378,7 @@ def training_weights(t, sampling_schedule):
 
 ---
 
-## 11. DiT 与 MMDiT：Diffusion Transformer 时代
+## 12. DiT 与 MMDiT：Diffusion Transformer 时代
 
 **提出**：Peebles & Xie (2023, DiT) → Esser et al. (2024, MMDiT/SD3) → Peebles (2024, Sora 公开承认是 DiT)
 
@@ -451,13 +507,13 @@ graph LR
 
 ---
 
-## 12. Consistency Models（一致性模型）
+## 13. Consistency Models（一致性模型）
 
 **提出**：Yang et al. (OpenAI, 2023, ICML 2023)
 
 **核心目标**：**一步生成**（1-step generation）——传统扩散模型需要 20-50 步，CM 试图压缩到 1-4 步。
 
-### 12.1 核心思想
+### 13.1 核心思想
 
 ```mermaid
 graph LR
@@ -470,7 +526,7 @@ graph LR
 
 **关键约束**：从同一起点 $x_T$ 出发的任意轨迹上的点，都应该能**一步映射回 $x_0$**——保证输出一致。
 
-### 12.2 训练目标
+### 13.2 训练目标
 
 **Self-consistency 损失**：
 
@@ -484,7 +540,7 @@ $$
 1. **Consistency Training (CT)**：无需预训练，从头训练
 2. **Consistency Distillation (CD)**：从预训练扩散模型蒸馏（如 Stable Diffusion）
 
-### 12.3 LCM（Latent Consistency Models）
+### 13.3 LCM（Latent Consistency Models）
 
 **提出**：Simian Luo et al. (2023, arXiv:2310.04378)
 
@@ -528,7 +584,7 @@ def lcm_sample(model, num_inference_steps=4, ...):
 
 ---
 
-## 13. 实战：用 SD3 / Flux 风格 API 生成
+## 14. 实战：用 SD3 / Flux 风格 API 生成
 
 ```python
 # Diffusers 库 + Flow Matching (Flux.1)
@@ -579,6 +635,7 @@ images = pipe(class_labels=class_ids, num_inference_steps=50).images
 - **MMDiT**：SD3 的关键创新，文本和图像用独立权重 + 联合 attention，**文本渲染能力大幅提升**
 - **Consistency Models / LCM**：1-4 步生成，**实时应用**的关键技术
 - 加速蒸馏流派（SDXL-Turbo、SDXL-Lightning、LCM-LoRA）让 SD 模型**实时生成**成为可能
+- **FID / KID**：生成模型的核心评估指标。FID 衡量特征分布距离（越低越好），KID 是其无偏改进版，更适合小样本评估
 
 
 ## 知识图谱
@@ -604,6 +661,10 @@ mindmap
     7. DDIM 加速采样
       DDIM 的核心改进
       质量与速度的权衡
+    10. 生成模型评估
+      FID（Fréchet Inception Distance）
+      KID（Kernel Inception Distance）
+      统计相似性 vs 语义一致性
 ```
 
 ## 参考资料

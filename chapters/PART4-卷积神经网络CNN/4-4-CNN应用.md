@@ -141,6 +141,8 @@ flowchart TD
 | **RandomErasing / Cutout** | 随机遮挡矩形区域 | 提升遮挡鲁棒性 |
 | **Cutmix + Mixup 组合** | 工业界常用，ImageNet +1.5% | 默认开启 |
 
+> **Random Erasing 详解**：Random Erasing（Zhong et al., 2020）是 Cutout 的改进版。它不是固定遮挡一个矩形区域，而是**随机选择图像中的一个矩形区域，将其像素替换为随机值或均值**。与 Cutout 的固定位置不同，Random Erasing 的遮挡位置、大小、长宽比都是随机的。在 timm 中通过 `re_prob=0.25` 启用（见上方代码）。工业实践表明，Random Erasing 对 ImageNet 分类可提升 **0.5~1.0%** 的 Top-1 准确率，且与 Mixup/CutMix 兼容。
+
 #### 1.5.2 正则化与优化
 
 | 技巧 | 说明 | 典型值 |
