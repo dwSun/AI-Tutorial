@@ -28,6 +28,51 @@ ELMo（2018）迈出了重要一步：使用双向 LSTM 生成**上下文相关�
 
 GPT（2018）证明了**基于 Transformer 解码器的预训练 + 微调范式**效果显著，但 GPT 使用的是单向（从左到右）语言模型，无法充分捕获双向上下文信息。
 
+**ULMFiT：NLP 迁移学习的里程碑**（Howard & Ruder, 2018）
+
+在 BERT 和 GPT 之前，**ULMFiT（Universal Language Model Fine-tuning）**首次证明了 NLP 中的迁移学习可以像 CV 一样有效。它的三阶段流程成为后来所有预训练语言模型的标准范式：
+
+1. **通用预训练**：在 WikiText-103 等大规模语料上训练语言模型
+2. **领域微调**：在目标任务的相关语料上继续训练语言模型（如 IMDb 电影评论）
+3. **任务微调**：在目标任务的标注数据上微调分类器
+
+ULMFiT 的两大技术创新：
+
+- **判别式学习率（Discriminative Fine-tuning）**：不同层使用不同学习率——底层（通用特征）用更小的 LR，顶层（任务特定）用更大的 LR
+
+  $$\eta^l = \eta \cdot \phi^l, \quad \phi \in (0, 1)$$
+
+  其中 $\phi \approx 0.8$ 是衰减因子，底层学习率约为顶层的 $0.8^L$ 倍。
+
+- **渐进式解冻（Gradual Unfreezing）**：从顶层开始解冻，逐层解冻更多层，避免灾难性遗忘
+
+  ```
+  Epoch 1: 只训练分类头（冻结所有语言模型层）
+  Epoch 2: 解冻最后一层
+  Epoch 3: 解冻倒数第二层
+  ...
+  Epoch N: 全部解冻
+  ```
+
+**影响**：ULMFiT 的"预训练 → 领域适配 → 任务微调"三阶段范式直接启发了 GPT 和 BERT 的设计。判别式学习率和渐进式解冻也成为 fast.ai 框架 `fine_tune()` 的核心实现。
+
+```python
+# fast.ai 中的 ULMFiT 流程（文本分类）
+from fastai.text.all import *
+
+dls = TextDataLoaders.from_df(df, text_col='text', label_col='label')
+learn = text_classifier_learner(dls, AWD_LSTM, drop_mult=0.5, metrics=accuracy)
+
+# 三阶段微调（fine_tune 自动实现渐进式解冻 + 判别式 LR）
+learn.fit_one_cycle(1, 2e-2)           # 阶段1: 冻结 body，只训练 head
+learn.freeze_to(-2)                     # 阶段2: 解冻最后1个隐藏层组 + 分类头
+learn.fit_one_cycle(1, slice(1e-2, 2e-3))  # 判别式 LR
+learn.freeze_to(-3)                     # 阶段3: 解冻最后3层
+learn.fit_one_cycle(1, slice(1e-2, 1e-4))
+learn.unfreeze()                        # 全部解冻
+learn.fit_one_cycle(2, slice(1e-3, 1e-5))
+```
+
 ### 1.2 BERT 的核心创新
 
 2018年，谷歌发布 **BERT（Bidirectional Encoder Representations from Transformers）**，刷新了 11 项 NLP 任务的 SOTA 纪录。
@@ -274,6 +319,7 @@ mindmap
     学习目标
     1. BERT 的诞生背景
       1.1 预训练思想的历史演进
+        ULMFiT
       1.2 BERT 的核心创新
     2. BERT 的预训练任务
     3. 预训练 + 微调范式

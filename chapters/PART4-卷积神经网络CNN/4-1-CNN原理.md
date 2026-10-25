@@ -561,6 +561,96 @@ $$
 
 ---
 
+## 8. 快速上手：声明式数据加载实战
+
+> **背景**：了解 CNN 原理之后，下一步就是"如何用代码加载数据并训练一个 CNN"。传统数据加载需手动写循环、处理拆分、做 batch——而**声明式 API** 让你只"声明你要什么"，框架去处理"怎么做"。
+
+### 8.1 传统方式 vs 声明式
+
+| 维度 | 传统（手动） | 声明式（现代） |
+|------|-------------|--------------|
+| 数据拆分 | 手动 `np.split` | 传一个 `valid_pct` 参数 |
+| 变换管道 | 多个 `for` 循环 | `transforms.Compose` / 链式 |
+| Batch 组装 | 手动 `stack` | `DataLoader(batch_size=...)` |
+| 标注加载 | 手动解析 CSV/XML | `ImageFolder` 按目录结构自动标注 |
+
+### 8.2 PyTorch 声明式数据加载（torchvision）
+
+PyTorch 的 `torchvision.datasets` 提供了**声明式风格**的数据加载——你只需指定目录和变换，框架处理拆分、打乱、多进程加载：
+
+```python
+import torchvision.transforms as T
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
+
+# 1. 声明变换管道（只声明"做什么"，不写循环）
+transform = T.Compose([
+    T.Resize((224, 224)),          # 统一尺寸
+    T.RandomHorizontalFlip(p=0.5), # 训练增强
+    T.ColorJitter(brightness=0.2), # 色彩抖动
+    T.ToTensor(),                  # PIL → Tensor [C,H,W]
+    T.Normalize(mean=[0.485, 0.456, 0.406],  # ImageNet 标准化
+                 std=[0.229, 0.224, 0.225]),
+])
+
+# 2. 声明数据集（ImageFolder 按目录结构自动标注）
+train_data = ImageFolder("data/train", transform=transform)
+val_data   = ImageFolder("data/val",   transform=transform)
+
+# 3. 声明 DataLoader（自动 batch + shuffle + 多进程）
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True,
+                          num_workers=4, pin_memory=True)
+val_loader   = DataLoader(val_data,   batch_size=32, shuffle=False)
+
+# 4. 训练循环中直接使用
+for images, labels in train_loader:
+    # images.shape → [32, 3, 224, 224]（batch, channel, H, W）
+    # labels.shape → [32]（每个样本的类别索引）
+    ...
+```
+
+**为什么这叫"声明式"？** 你不需要写「对每张图片做 resize → 随机翻转 → 转 tensor → 标准化」，你只需要声明一个 `transform` 列表。框架对你透明地执行。
+
+### 8.3 fastai DataBlock：更极致的声明式
+
+[fastai](https://docs.fast.ai) 的 `DataBlock` 将数据加载进一步简化——你甚至不需要写 `DataLoader`：
+
+```python
+from fastai.vision.all import *
+
+# 一行声明：数据在哪、如何拆分、如何变换
+dblock = DataBlock(
+    blocks=(ImageBlock, CategoryBlock),    # 输入=图像，输出=类别
+    get_items=get_image_files,              # 自动递归找图
+    splitter=RandomSplitter(valid_pct=0.2), # 随机拆分 80/20
+    get_y=parent_label,                     # 从父目录名获取标签
+    item_tfms=Resize(224),                  # 每张图统一尺寸
+    batch_tfms=aug_transforms(),            # batch 级增强（翻转、旋转等）
+)
+
+# → 自动生成 DataLoaders
+dls = dblock.dataloaders("data/")
+
+# 查看一个 batch
+dls.show_batch()
+```
+
+**DataBlock 的核心理念**：你声明**数据类型**（ImageBlock / CategoryBlock）、**数据源**（文件路径）、**拆分策略**（RandomSplitter）、**变换**（item_tfms + batch_tfms），剩下的 batch 组装、打乱、多进程加载全部由框架自动完成。
+
+### 8.4 声明式数据加载的核心优势
+
+| 优势 | 说明 |
+|------|------|
+| **代码量减少 70%** | 声明式 vs 手写循环：5 行 vs 30+ 行 |
+| **可组合** | `transforms.Compose` 任意增删变换 |
+| **多进程透明** | `num_workers` 自动并行加载，无需手动管理线程 |
+| **统一接口** | 不论图像 / 文本 / 表格，`DataLoader` 都返回 `(inputs, targets)` |
+| **可复现** | 传 `seed=42` 即可固定打乱顺序 |
+
+> **经验法则**：如果你的数据加载代码超过 20 行，说明你在做框架应该做的事。用声明式 API 替代手写循环。
+
+---
+
 ## 本章小结
 
 1. **为什么需要 CNN**：全连接网络处理大图像时参数过多（224×224×3 输入到 1000 隐层有约 1.5 亿参数），易过拟合、计算量大、丢失空间结构信息。图像具有空间局部相关性，CNN 通过局部感受野和参数共享有效解决这些问题。

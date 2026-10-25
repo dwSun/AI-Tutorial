@@ -384,7 +384,7 @@ def training_weights(t, sampling_schedule):
 
 **核心变革**：扩散模型的**骨干网络**从 U-Net 换成 **Transformer**——更好的扩展性、更强的多模态融合。
 
-### 11.1 DiT（Diffusion Transformer）架构
+### 12.1 DiT（Diffusion Transformer）架构
 
 ```mermaid
 graph TB
@@ -413,7 +413,7 @@ graph TB
 - **Adaptive LayerNorm (AdaLN)**：用 timestep 和 class label **调制** LayerNorm 的 scale/shift
 - **零初始化**：DiT 最后一个 AdaLN 初始化为 0，训练初期输出为零，整个模型等价于恒等映射
 
-### 11.2 MMDiT（Multimodal DiT）— SD3 的创新
+### 12.2 MMDiT（Multimodal DiT）— SD3 的创新
 
 **问题**：DiT 把文本当作"另一种 token"，但文本和图像的语义结构**完全不同**——简单 concat 效果不好。
 
@@ -469,7 +469,7 @@ graph LR
 
 **关键洞察**：在 attention 阶段，**文本 token 看到图像 token**、**图像 token 也看到文本 token**——双向信息流让文本理解和图像生成同步提升。
 
-### 11.3 DiT 系列在 2024 的爆发
+### 12.3 DiT 系列在 2024 的爆发
 
 | 模型 | 时间 | 参数量 | 创新点 |
 |------|------|--------|--------|
@@ -480,13 +480,13 @@ graph LR
 | **Sora (OpenAI)** | 2024.02/12 | 据传扩散 Transformer | 时空 patch + DiT |
 | **Wan2.1 (阿里)** | 2025.02 | 1.3B-14B | 开源视频 DiT |
 
-### 11.4 训练 DiT 的 3 个工程要点
+### 12.4 训练 DiT 的 3 个工程要点
 
 1. **Patch Size 选择**：2×2 用于高分辨率（SD3），4×4 用于低分辨率（DiT 原论文），8×8 用于 Latent Diffusion
 2. **AdaLN-Zero**：最后一个 AdaLN 初始化为 0 + 残差连接为 0，训练前期输出恒等，**比标准初始化收敛快 2-3×**
 3. **位置编码**：使用 2D RoPE（旋转位置编码），方便从 256×256 扩展到 1024×1024
 
-### 11.5 视频 DiT：从图像到时空
+### 12.5 视频 DiT：从图像到时空
 
 Sora、Wan2.1 等视频模型把 DiT 扩展到 3D patch：
 
@@ -573,7 +573,7 @@ def lcm_sample(model, num_inference_steps=4, ...):
 | **LCM-LoRA** | **4 步** | 0.6s | 6.5 |
 | **SDXL-Lightning** | 1-4 步 | 0.4-0.8s | 6.8 |
 
-### 12.4 Diffusion 模型的 4 大加速方向
+### 13.4 Diffusion 模型的 4 大加速方向
 
 | 方向 | 代表 | 步数 | 质量损失 |
 |------|------|------|----------|
@@ -620,6 +620,136 @@ class_ids = torch.tensor([207, 360, 387])  # 金毛、斑马、柠檬
 images = pipe(class_labels=class_ids, num_inference_steps=50).images
 ```
 
+## 15. Karras et al. 2022：EDM 采样框架
+
+Karras 等人在 *Elucidating the Design Space of Diffusion-Based Generative Models*（EDM, 2022）中，将各种扩散模型统一到一个框架下，揭示了 DDPM、Score Matching、VE/VP 等方法只是**同一个数学框架的不同参数化**。
+
+**核心贡献**：
+
+1. **统一公式**：所有扩散模型的前向过程可以写成：
+
+$$\mathbf{x}_t = \alpha(t)\mathbf{x} + \sigma(t)\mathbf{n}, \quad \mathbf{n} \sim \mathcal{N}(0, \mathbf{I})$$
+
+   其中 $\alpha(t)$ 控制信号缩放，$\sigma(t)$ 控制噪声水平。不同模型的区别仅在于 $\alpha(t)$ 和 $\sigma(t)$ 的选择：
+
+   | 模型 | $\alpha(t)$ | $\sigma(t)$ | 等价于 |
+   |------|------------|------------|--------|
+   | DDPM (VP) | $\sqrt{1-\beta_t}$ 累积 | $\sqrt{1-\bar\alpha_t}$ | 方差保持 |
+   | Score SDE (VE) | 1 | $\sigma_{\max} e^t$ | 方差爆炸 |
+   | EDM (Karras) | 自适应 | 自适应 | 最优权衡 |
+
+2. **预条件化（Preconditioning）**：EDM 发现去噪网络 $D_\theta$ 应该预条件化，而非直接预测噪声：
+
+$$D_\theta(\mathbf{x}; \sigma) = c_{skip}(\sigma)\mathbf{x} + c_{out}(\sigma)F_\theta(c_{in}(\sigma)\mathbf{x}; c_{noise}(\sigma))$$
+
+   其中 $c_{skip}, c_{out}, c_{in}, c_{noise}$ 是根据 $\sigma$ 自适应调整的缩放因子，确保网络在不同噪声水平下都有稳定的训练信号。
+
+3. **采样器设计**：EDM 提出了更优的 ODE 求解器：
+
+```python
+# EDM Euler 采样器（Karras et al. 2022）
+def edm_euler_sample(model, shape, num_steps=20, 
+                     sigma_min=0.002, sigma_max=80.0, rho=7.0):
+    """EDM 采样：使用 Karras 噪声调度 + Euler 求解器"""
+    # Karras 噪声调度（rho 控制低噪声区域的密度）
+    sigmas = (sigma_max ** (1/rho) + 
+              torch.linspace(0, 1, num_steps+1) * 
+              (sigma_min ** (1/rho) - sigma_max ** (1/rho))) ** rho
+    
+    x = torch.randn(shape) * sigma_max  # 从最大噪声开始
+    for i in range(num_steps):
+        # EDM 预条件化
+        c_in = 1.0 / (sigmas[i] ** 2 + 1).sqrt()
+        c_out = sigmas[i] / (sigmas[i] ** 2 + 1).sqrt()
+        c_skip = 1.0 / (sigmas[i] ** 2 + 1)
+        c_noise = 0.25 * sigmas[i].log()
+        
+        denoised = c_skip * x + c_out * model(c_in * x, c_noise)
+        # Euler 步进
+        d = (x - denoised) / sigmas[i]
+        x = x + d * (sigmas[i+1] - sigmas[i])
+    
+    return x
+```
+
+**采样器对比**（EDM 框架下）：
+
+| 采样器 | 步数 | 特点 | 适用场景 |
+|--------|------|------|---------|
+| Euler | 20-40 | 最简单，一阶 | 快速预览 |
+| Ancestral Euler | 20-40 | 加随机噪声，多样性高 | 创意生成 |
+| Heun (2nd order) | 10-20 | 二阶精度，更少步数 | 高质量生成 |
+| DPM-Solver (2nd/3rd) | 10-20 | 专为扩散设计 | 生产环境 |
+| LMS (Linear Multi-Step) | 10-20 | 利用历史梯度 | 稳定生成 |
+
+> **实践影响**：EDM 的 Karras 调度已成为 Stable Diffusion 社区的默认选择（`scheduler.KarrasVeScheduler`），`rho=7.0` 是最常用的参数。ComfyUI / Automatic1111 中的 "Karras" 选项就是指这个调度。
+
+## 16. Neural Cellular Automata：从局部规则到全局涌现
+
+**Neural Cellular Automata（NCA）**（Mordvintsev et al., 2020）将细胞自动机与神经网络结合，用可学习的局部规则生成复杂的全局模式。fast.ai 课程 Part 2 将其作为"理解涌现行为"的教学案例。
+
+**核心思想**：每个像素（细胞）只看自己和 3×3 邻域的状态，根据一个共享的神经网络更新自己。没有全局控制器，没有中心化指令——复杂图案从**局部交互中涌现**。
+
+**与扩散模型的关系**：NCA 的迭代更新过程类似扩散模型的去噪过程，但 NCA 的"去噪"不是预测噪声，而是学习**生长规则**——从单像素种子"长出"完整图案。
+
+```python
+import torch
+import torch.nn as nn
+
+class NCA(nn.Module):
+    """Neural Cellular Automata：可学习的生长规则"""
+    def __init__(self, n_channels=16, hidden_channels=128):
+        super().__init__()
+        # 感知层：3x3 Sobel + identity 感知邻域
+        self.perceive = nn.Sequential(
+            nn.Conv2d(n_channels, hidden_channels, 3, padding=1, bias=False),
+        )
+        # 更新规则：MLP
+        self.update = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(hidden_channels, n_channels, 1, bias=False),
+        )
+        # 只更新活细胞（alpha 通道 > 0.1）
+        self.alive_threshold = 0.1
+    
+    def forward(self, x, steps=1):
+        for _ in range(steps):
+            # 只更新活细胞
+            alive = x[:, 3:4, :, :] > self.alive_threshold  # alpha 通道
+            dx = self.update(self.perceive(x))
+            # 随机丢弃一些更新（类似 dropout，增加鲁棒性）
+            mask = (torch.rand(x.shape[0], 1, x.shape[2], x.shape[3]) > 0.1).float()
+            x = x + dx * mask * alive.float()
+            x = x.clamp(0, 1)
+        return x
+
+# 训练：从单像素种子长出目标图案
+# target_image: [1, 4, H, W] (RGBA)
+# seed: [1, 16, H, W] 只有中心像素 alpha=1
+nca = NCA(n_channels=16)
+optimizer = torch.optim.Adam(nca.parameters(), lr=1e-3)
+
+for step in range(1000):
+    optimizer.zero_grad()
+    seed = torch.zeros(1, 16, 64, 64)
+    seed[0, 3, 32, 32] = 1.0  # 中心种子（alpha 通道设为 1）
+    output = nca(seed, steps=64)  # 生长 64 步
+    loss = ((output[:, :4] - target_image) ** 2).mean()  # 只对 RGBA 4 通道计算损失，其余通道为隐变量
+    loss.backward()
+    optimizer.step()
+```
+
+**NCA 的独特性质**：
+
+| 性质 | 说明 |
+|------|------|
+| **自修复** | 删除部分图案后，NCA 能自动重新生长 |
+| **鲁棒性** | 对噪声、扰动有很强的容忍度 |
+| **无限生长** | 训练时限制步数，但推理时可以持续生长 |
+| **极小参数** | 通常 < 10K 参数，远小于扩散模型 |
+
+> **延伸阅读**：NCA 的思想已扩展到**3D 物体生成**（Growing 3D NCA）、**多智能体系统**和**可微分编程**。它展示了"简单规则 → 复杂行为"这一核心 AI 哲学，与扩散模型的"噪声 → 结构"异曲同工。
+
 ---
 
 ## 本章小结
@@ -636,6 +766,8 @@ images = pipe(class_labels=class_ids, num_inference_steps=50).images
 - **Consistency Models / LCM**：1-4 步生成，**实时应用**的关键技术
 - 加速蒸馏流派（SDXL-Turbo、SDXL-Lightning、LCM-LoRA）让 SD 模型**实时生成**成为可能
 - **FID / KID**：生成模型的核心评估指标。FID 衡量特征分布距离（越低越好），KID 是其无偏改进版，更适合小样本评估
+- **Karras/EDM**：统一了 VP/VE 等扩散框架，预条件化 + Karras 噪声调度已成为 Stable Diffusion 社区默认选择
+- **Neural Cellular Automata**：用可学习的局部规则从单像素种子"长出"图案，展示了"简单规则→复杂行为"的涌现哲学
 
 
 ## 知识图谱
@@ -661,6 +793,8 @@ mindmap
     7. DDIM 加速采样
       DDIM 的核心改进
       质量与速度的权衡
+    15. Karras/EDM 采样
+    16. Neural Cellular Automata
     10. 生成模型评估
       FID（Fréchet Inception Distance）
       KID（Kernel Inception Distance）

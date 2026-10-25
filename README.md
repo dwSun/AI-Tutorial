@@ -45,7 +45,8 @@
     ├── PART12-多模态与Agent/
     ├── PART13-行业应用与前沿/
     ├── PART14-AI伦理与安全/
-    └── PART15-论文阅读与实验写作/
+    ├── PART15-论文阅读与实验写作/
+    └── PART16-评测监控与治理/
 ```
 
 ---
@@ -108,6 +109,9 @@
 | PART7 | [7-3 Prompt Engineering](chapters/PART7-大语言模型LLM/7-3-Prompt-Engineering.md) | Zero-shot/Few-shot/CoT/结构化输出/52套模板/去AI味 |
 | PART7 | [7-4 LLM进阶技术](chapters/PART7-大语言模型LLM/7-4-LLM进阶技术.md) | LoRA、QLoRA、Flash Attention、RAG |
 | PART7 | [7-5 本地大模型与 Ollama 实战](chapters/PART7-大语言模型LLM/7-5-本地大模型与Ollama实战.md) | Ollama 安装/部署/Modelfile/Wechaty/RAG ⭐新增 |
+| PART7 | [7-6 大模型厂商全景](chapters/PART7-大语言模型LLM/7-6-大模型厂商全景.md) | 全球四阵营、国内外厂商谱系、开源/闭源商业逻辑、读模型名（参数/MoE）、上下文竞赛、技术路线 ⭐新增 |
+| PART7 | [7-7 模型智力与价格性价比](chapters/PART7-大语言模型LLM/7-7-模型智力与价格性价比.md) | 性价比指数、95 模型性价比榜、代际倒挂、开源占高地、月账单视角、帕累托前沿、按任务选型 ⭐新增 |
+| PART7 | [7-8 API 按量与订阅制](chapters/PART7-大语言模型LLM/7-8-API按量与订阅制.md) | 按量 vs 订阅、配额窗口（5h/周/月）、价值倍数、隐藏成本、决策树、五个省钱手段 ⭐新增 |
 | PART8 | [8-1 生成对抗网络GAN](chapters/PART8-生成式AI/8-1-生成对抗网络GAN.md) | GAN原理、DCGAN、WGAN、StyleGAN |
 | PART8 | [8-2 扩散模型Diffusion](chapters/PART8-生成式AI/8-2-扩散模型Diffusion.md) | DDPM、DDIM、CFG、vs GAN对比 |
 | PART8 | [8-3 文生图与视频生成](chapters/PART8-生成式AI/8-3-文生图与视频生成.md) | Stable Diffusion、Sora、Runway |
@@ -130,8 +134,8 @@
 | PART10 | [10-5 梯度累加与显存优化 ⭐补充](chapters/PART10-训练优化与部署/10-5-梯度累加与显存优化.md) | 梯度累加 + TF32/BF16/INT8 实测 |
 | PART10 | [10-6 OpenMMLab 生态与 MMDeploy 部署](chapters/PART10-训练优化与部署/10-6-OpenMMLab生态与MMDeploy部署.md) | MMDet/MMSeg/MMDeploy 多后端部署 ⭐新增 |
 | PART10 | [10-7 边缘部署与 Jetson 实战](chapters/PART10-训练优化与部署/10-7-边缘部署与Jetson实战.md) | Jetson 谱系/TensorRT/性能调优 ⭐新增 |
-| [10-8 训练硬件选型指南](chapters/PART10-训练优化与部署/10-8-训练硬件选型指南.md) | 个人开发机/CNN 工作站/4-GPU 节点/数据中心/**LLM 个人训练不了** + 云租+二手 + 选型决策树 + 2024-2026 推荐配置 + **算力单位 (TOPS/FLOPS/FLOPs) + 算力 vs 显存非线性 + A100 Tensor Core 黑魔法 + CUDA Compute Capability 80+ GPU 全表** ⭐⭐新增 |
-| [10-9 训练实战技巧大全](chapters/PART10-训练优化与部署/10-9-训练实战技巧大全.md) | **Google 43 条经验法则** + **Kaggle 39 场实战技巧** + SGD 11 种优化器变体 + Finetune 7 种 PEFT + Snapshot Ensembles + Softmax 温度 T + 训练 Tricks 精华 + 10 步 Checklist ⭐新增 |
+| PART10 | [10-8 训练硬件选型指南](chapters/PART10-训练优化与部署/10-8-训练硬件选型指南.md) | 个人开发机/CNN 工作站/4-GPU 节点/数据中心/**LLM 个人训练不了** + 云租+二手 + 选型决策树 + 2024-2026 推荐配置 + **算力单位 (TOPS/FLOPS/FLOPs) + 算力 vs 显存非线性 + A100 Tensor Core 黑魔法 + CUDA Compute Capability 80+ GPU 全表** ⭐⭐新增 |
+| PART10 | [10-9 训练实战技巧大全](chapters/PART10-训练优化与部署/10-9-训练实战技巧大全.md) | **Google 43 条经验法则** + **Kaggle 39 场实战技巧** + SGD 11 种优化器变体 + Finetune 7 种 PEFT + Snapshot Ensembles + Softmax 温度 T + 训练 Tricks 精华 + 10 步 Checklist ⭐新增 |
 
 ### 🎯 应用篇（行业落地）
 
@@ -164,6 +168,15 @@
 | PART14 | [14-3 数据伦理](chapters/PART14-AI伦理与安全/14-3-数据伦理.md) | 数据偏见/知情同意/标注工人权益/Deepfake/信息茧房/负责任AI ⭐新增 |
 | PART15 | [15-1 论文阅读与实验报告写作](chapters/PART15-论文阅读与实验写作/15-1-论文阅读与实验报告写作.md) | 实验报告结构、论文三遍读法、模板 ⭐新增 |
 
+### 🧪 评测篇（可靠性与治理）
+
+| 部分 | 章节 | 内容 |
+|------|------|------|
+| PART16 | [16-1 模型评测体系与指标](chapters/PART16-评测监控与治理/16-1-模型评测体系与指标.md) | 离线评测、人工评测、在线评测、基准集设计 |
+| PART16 | [16-2 RAG 与 Agent 评测](chapters/PART16-评测监控与治理/16-2-RAG与Agent评测.md) | 检索评测、生成评测、任务成功率、工具调用质量 |
+| PART16 | [16-3 线上监控与持续回归](chapters/PART16-评测监控与治理/16-3-线上监控与持续回归.md) | 漂移监测、A/B、Canary、Shadow、告警与回归 |
+| PART16 | [16-4 AI 治理与红队测试](chapters/PART16-评测监控与治理/16-4-AI治理与红队测试.md) | NIST AI RMF、OWASP 风险、红队测试、上线治理 |
+
 ### 📚 附录
 
 | 章节 | 内容 |
@@ -176,12 +189,12 @@
 
 | 项目 | 数值 |
 |------|------|
-| 总部分数 | 15 |
-| 总章节数 | 82 |
+| 总部分数 | 16 |
+| 总章节数 | 89 |
 | 补充阅读章节数 | 14 |
 | 附录 | 1（模型选型速查表） |
-| 总行数 | ~47,481 行 |
-| Mermaid 图表 | 378 个 |
+| 总行数 | ~51,200 行 |
+| Mermaid 图表 | 406 个 |
 | 涵盖领域 | 数学基础 → ML → DL → CV → NLP → LLM → 多模态 → Agent → 行业应用 → AI伦理 → 工程实战 → 实验写作 |
 | ML-DL 素材覆盖率 | ~60% (从 ~25% 提升) |
 | 前沿技术覆盖 | 2024-2026 主流：GRPO / DPO 变体 / V-JEPA 2 / Cosmos / FA3 / Mixture of Depths / Mamba / DiT / Flow Matching / Mechanistic Interpretability / Sleeper Agents / Computer Use / Deep Research 等 |
@@ -196,7 +209,7 @@
 - [CNN](chapters/PART4-卷积神经网络CNN/) - 卷积操作、经典架构、注意力
 - [RNN](chapters/PART5-序列建模与循环网络/) - 序列建模、LSTM/GRU、Seq2Seq
 - [Transformer](chapters/PART6-Transformer与预训练/) - 注意力机制、BERT、GPT
-- [大语言模型](chapters/PART7-大语言模型LLM/) - LLM训练、Prompt、LoRA、RAG、Ollama
+- [大语言模型](chapters/PART7-大语言模型LLM/) - LLM训练、Prompt、LoRA、RAG、Ollama、厂商全景、性价比、计费方式
 - [生成式AI](chapters/PART8-生成式AI/) - GAN、Diffusion、SD、Sora
 - [高级学习范式](chapters/PART9-高级学习范式/) - 小样本学习、强化学习、GNN、KGQA
 - [训练优化](chapters/PART10-训练优化与部署/) - 分布式训练、模型压缩、部署、OpenMMLab、Jetson
@@ -205,6 +218,7 @@
 - [行业应用](chapters/PART13-行业应用与前沿/) - AI for Science、自动驾驶、Geo AI
 - [AI伦理](chapters/PART14-AI伦理与安全/) - 对齐问题、对抗安全、数据伦理、标准化
 - [论文与实验](chapters/PART15-论文阅读与实验写作/) - 论文阅读、实验报告
+- [评测与治理](chapters/PART16-评测监控与治理/) - 评测体系、RAG/Agent 评测、监控、红队与治理
 
 ---
 
@@ -217,6 +231,8 @@
 2026 年 6 月 3 日，根据 ML-DL 参考目录（444 个 .md 文件）进行了全面审计和补全，吸收了 80% 以上未利用素材，包括 OpenMMLab 生态、Jetson 边缘部署、Ollama 本地大模型、ReID 行人重识别、目标跟踪 (SORT/ByteTrack)、异常检测 (PatchCore)、现代 CNN 骨干 (RegNet/RepVGG/ConvNeXt)、注意力全景 (SE/CBAM/CA/SK)、智能问答 Pipeline、Grad-CAM 可解释性、TF32/INT8 实测、AI 标准化白皮书等。
 
 2026 年 6 月 24 日，根据 fast.ai Practical Deep Learning for Coders 课程（25 Lessons + Data Ethics）进行内容审计，补充了推荐系统与协同过滤、自编码器、数据伦理、Mean Shift 聚类、Random Erasing、扩散模型图像编辑（Dreambooth/Textual Inversion/DiffEdit/Imagic）、FID/KID 评估指标、Hugging Face Spaces + Gradio 快速部署等 fast.ai 涉及但教程缺失的核心内容。
+
+2026 年 10 月 25 日，补齐 fast.ai 审计遗留的 10 项差距（ULMFiT、lr_find 学习率查找、混淆矩阵驱动数据清洗、从零实现矩阵乘/反向传播/Autograd、OOB 袋外误差、Learner+Callback 框架、图片爬取建数据集、Karras/EDM 采样、LSUV 初始化、Neural Cellular Automata），并新增 **PART7 三个选型与计费章节**：7-6 大模型厂商全景、7-7 模型智力与价格性价比、7-8 API 按量与订阅制。同时修复了多处章节编号错位与统计口径不一致。
 
 现在，公开发布共享。
 
