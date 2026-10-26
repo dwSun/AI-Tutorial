@@ -528,7 +528,7 @@ flowchart TD
 | **Pixel Cross-Entropy** | -Σy·log(p) | 通用 |
 | **Weighted CE** | 加权 CE，处理类别不均 | 类别严重不均 |
 | **Focal Loss** | -α(1-p)^γ·log(p) | 前景背景不均 |
-| **Dice Loss** | 1 - 2·|P∩G|/(|P|+|G|) | 医学影像、小目标 |
+| **Dice Loss** | 1 − 2·‖P∩G‖/(‖P‖+‖G‖) | 医学影像、小目标 |
 | **Lovász Loss** | Lovász 扩展的 IoU 代理 | mIoU 直接优化 |
 | **Boundary Loss** | 基于距离的边界损失 | 精细边界 |
 | **OHEM** | 在线难样本挖掘 | 难例挖掘 |

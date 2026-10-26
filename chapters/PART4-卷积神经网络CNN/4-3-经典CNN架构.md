@@ -618,7 +618,7 @@ flowchart TD
 
 ---
 
-### 7.5 三大经典 CNN 对比：ResNet50 vs MobileNetV2 vs Inception-ResNet-V2
+### 7.7 三大经典 CNN 对比：ResNet50 vs MobileNetV2 vs Inception-ResNet-V2
 
 > **本节核心**：这是工业部署选型时最常被比较的"三大经典"。理解它们的**设计哲学差异**和**性能权衡**比知道参数数字更重要。
 

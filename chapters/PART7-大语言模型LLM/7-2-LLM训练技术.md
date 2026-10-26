@@ -427,6 +427,8 @@ optimizer = AdamW(model.parameters(), lr=3e-4)
 
 ---
 
+> **参数高效微调**：LoRA / QLoRA / Adapter / Prefix-Tuning 等 7 种 PEFT 方法的对比与显存选型，见 [10-9 训练实战技巧大全](../PART10-训练优化与部署/10-9-训练实战技巧大全.md) §4。
+
 ## 其他训练技术
 
 ### Prefix Tuning / Prompt Tuning

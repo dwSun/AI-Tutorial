@@ -73,6 +73,8 @@ learn.unfreeze()                        # 全部解冻
 learn.fit_one_cycle(2, slice(1e-3, 1e-5))
 ```
 
+> **配套工具**：ULMFiT 的「判别式学习率」在工程上怎么设（分层的 lr 区间、与 OneCycleLR 配合），见 [10-1 学习率与 Batch Size](../PART10-训练优化与部署/10-1-学习率与Batch-Size.md) §9。
+
 ### 1.2 BERT 的核心创新
 
 2018年，谷歌发布 **BERT（Bidirectional Encoder Representations from Transformers）**，刷新了 11 项 NLP 任务的 SOTA 纪录。

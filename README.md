@@ -172,10 +172,10 @@
 
 | 部分 | 章节 | 内容 |
 |------|------|------|
-| PART16 | [16-1 模型评测体系与指标](chapters/PART16-评测监控与治理/16-1-模型评测体系与指标.md) | 离线评测、人工评测、在线评测、基准集设计 |
-| PART16 | [16-2 RAG 与 Agent 评测](chapters/PART16-评测监控与治理/16-2-RAG与Agent评测.md) | 检索评测、生成评测、任务成功率、工具调用质量 |
-| PART16 | [16-3 线上监控与持续回归](chapters/PART16-评测监控与治理/16-3-线上监控与持续回归.md) | 漂移监测、A/B、Canary、Shadow、告警与回归 |
-| PART16 | [16-4 AI 治理与红队测试](chapters/PART16-评测监控与治理/16-4-AI治理与红队测试.md) | NIST AI RMF、OWASP 风险、红队测试、上线治理 |
+| PART16 | [16-1 模型评测体系与指标](chapters/PART16-评测监控与治理/16-1-模型评测体系与指标.md) | 三层评测漏斗、分类/检索/生成指标**手算+可运行实现**（Recall@K/MRR/nDCG）、LLM-as-Judge 四种偏差与 κ 校准、评测集三层结构与污染检测 |
+| PART16 | [16-2 RAG 与 Agent 评测](chapters/PART16-评测监控与治理/16-2-RAG与Agent评测.md) | 误差归因、RAG 四层指标**手算**（Recall/Precision/Faithfulness/Relevance）、句子级 NLI 判定、Agent 轨迹评测、pass@k、故障码分诊表 |
+| PART16 | [16-3 线上监控与持续回归](chapters/PART16-评测监控与治理/16-3-线上监控与持续回归.md) | 三类漂移、**PSI 公式手算+可运行实现**（含分箱陷阱）、P50/P95/P99、灰度最小样本量推导、EWMA 突增告警、回归测试接 CI |
+| PART16 | [16-4 AI 治理与红队测试](chapters/PART16-评测监控与治理/16-4-AI治理与红队测试.md) | 风险→控制点映射、NIST RMF 交付物、**注入四层防御+防护代码**、过度代理三约束、自动化红队用例、EU AI Act/国内合规、带验收标准的清单 |
 
 ### 📚 附录
 
@@ -193,8 +193,9 @@
 | 总章节数 | 89 |
 | 补充阅读章节数 | 14 |
 | 附录 | 1（模型选型速查表） |
-| 总行数 | ~51,200 行 |
-| Mermaid 图表 | 406 个 |
+| 总行数 | ~52,100 行 |
+| Mermaid 图表 | 415 个（89 章 × 各 1 张知识图谱 mindmap） |
+| 章节间交叉引用 | 62 处（"延伸阅读/前置知识/章节分工" 等提示块） |
 | 涵盖领域 | 数学基础 → ML → DL → CV → NLP → LLM → 多模态 → Agent → 行业应用 → AI伦理 → 工程实战 → 实验写作 |
 | ML-DL 素材覆盖率 | ~60% (从 ~25% 提升) |
 | 前沿技术覆盖 | 2024-2026 主流：GRPO / DPO 变体 / V-JEPA 2 / Cosmos / FA3 / Mixture of Depths / Mamba / DiT / Flow Matching / Mechanistic Interpretability / Sleeper Agents / Computer Use / Deep Research 等 |

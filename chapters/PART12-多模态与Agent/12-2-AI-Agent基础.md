@@ -304,7 +304,7 @@ flowchart TB
 
 ## 5. Agent Harness Engine（Agent 运行时 / 编排引擎）
 
-### 5.0 为什么需要 Harness Engine
+### 5.1 为什么需要 Harness Engine
 
 前面的章节里我们谈了"什么是 Agent"（感知→推理→行动）、ReAct 范式、工具调用、记忆系统。但这些只是**逻辑层**的描述——真正让一个 Agent 在生产环境稳定运行，需要一套完整的**运行时基础设施**。这就是 **Harness Engine**（中文常译"代理引擎"或"Agent 编排器"）。
 
@@ -340,7 +340,7 @@ flowchart TB
 
 ---
 
-### 5.1 Harness Engine 的核心组件
+### 5.2 Harness Engine 的核心组件
 
 一个生产级 Harness 通常包含 **8 大子系统**：
 
@@ -387,7 +387,7 @@ flowchart TB
 
 ---
 
-### 5.2 案例剖析：Claude Code 的 Harness 架构
+### 5.3 案例剖析：Claude Code 的 Harness 架构
 
 Claude Code 是 Anthropic 官方发布的终端编程 Agent，**完全开源其 TypeScript 源码**（v2.1.88）。它代表了当前 Harness 工程的最佳实践。
 
@@ -581,7 +581,7 @@ flowchart TB
 
 ---
 
-### 5.3 案例剖析：Manus AI 的 Harness 架构
+### 5.4 案例剖析：Manus AI 的 Harness 架构
 
 Manus 是 2025 年爆火的通用 Agent，其工程团队公开了"Context Engineering for AI Agents"博客，揭秘了背后的核心设计哲学。
 
@@ -683,7 +683,7 @@ if action_failed:
 
 ---
 
-### 5.4 案例剖析：Deep Agents（LangChain 开源 Harness）
+### 5.5 案例剖析：Deep Agents（LangChain 开源 Harness）
 
 LangChain 在 2025 年开源了 **Deep Agents**——MIT 协议、复刻 Claude Code/Manus/Codex 的工程模式。
 
@@ -789,7 +789,7 @@ def loop_detection(tool_call, next_handler):
 
 ---
 
-### 5.5 MCP（Model Context Protocol）— 工具的 USB-C
+### 5.6 MCP（Model Context Protocol）— 工具的 USB-C
 
 **MCP** 是 Anthropic 在 2024 年提出的**开放协议**，让任何工具/数据源以标准化方式接入 LLM。
 
@@ -864,7 +864,7 @@ mcp__context7__get_library_docs
 
 ---
 
-### 5.6 Hooks（钩子）— 生命周期事件系统
+### 5.7 Hooks（钩子）— 生命周期事件系统
 
 Hooks 是 Harness 中**拦截生命周期事件**的机制，让你插入自定义逻辑而无需修改主循环。
 
@@ -923,7 +923,7 @@ Hooks 是 Harness 中**拦截生命周期事件**的机制，让你插入自定�
 
 ---
 
-### 5.7 Sub-Agent（子代理）— 上下文隔离的艺术
+### 5.8 Sub-Agent（子代理）— 上下文隔离的艺术
 
 子 Agent 是 Harness 中**最重要也最危险**的能力——用得好是分治利器，用不好是失控之源。
 
@@ -1014,7 +1014,7 @@ maxTurns: 30
 
 ---
 
-### 5.8 上下文工程（Context Engineering）vs Prompt Engineering
+### 5.9 上下文工程（Context Engineering）vs Prompt Engineering
 
 Prompt Engineering 关注**单次输入**的优化，Context Engineering 关注**整个 Agent 生命周期**中"什么信息该出现在 context 里"。
 
@@ -1078,7 +1078,7 @@ graph LR
 
 ---
 
-### 5.9 主流 Harness 框架对比
+### 5.10 主流 Harness 框架对比
 
 | 框架 | 核心抽象 | 上下文管理 | Sub-Agent | MCP | 开源 | 适合 |
 |------|----------|------------|-----------|-----|------|------|
@@ -1107,7 +1107,7 @@ graph LR
 
 ---
 
-### 5.10 如何自建一个最小 Harness
+### 5.11 如何自建一个最小 Harness
 
 #### 5.10.1 核心 50 行
 
@@ -1268,7 +1268,7 @@ crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
 result = crew.kickoff()
 ```
 
-### 5.2 CrewAI 多 Agent 协作
+### 6.3 CrewAI 多 Agent 协作
 
 ```python
 from crewai import Agent, Task, Crew
@@ -1514,6 +1514,8 @@ print(f"平均成本: ${mean([c['cost'] for c in test_cases]):.3f}")
 > 📌 **关键启示**：对于想做 Agent 产品的团队，**工程能力比模型选型更重要**。一个好的 scaffold 可以让中等模型达到顶级效果，反之亦然。
 
 ---
+
+> **评测方法**：上面这些基准衡量「结果好不好」，但 Agent 还要看「过程对不对」（工具参数、越权、死循环）。轨迹级评测与 pass@k 见 [16-2 RAG 与 Agent 评测](../PART16-评测监控与治理/16-2-RAG与Agent评测.md)。
 
 ## 8. Computer Use / Deep Research / Operator：2024-2025 新范式
 

@@ -847,7 +847,7 @@ You are a software engineering agent.
 - 必须给字段加表别名
 - 性能差的写法请提示（如 SELECT *）
 - 复杂查询先解释思路再给 SQL
-- 用 ```sql 包裹输出
+- 用带 sql 语言标注的代码块包裹输出
 ```
 
 ### 案例 2：代码审查

@@ -154,7 +154,7 @@ Conv2d → BatchNorm2d → ReLU → Pool → ...
 
 归一化（Normalization）是深度学习的"稳定器"。不同归一化方法**在哪个维度上做归一化**决定了它们的适用场景。
 
-### 3.0 归一化维度对比
+### 3.1 归一化维度对比
 
 设输入特征 $x$ 形状为 $(N, C, H, W)$，其中 $N$ 是 batch，$C$ 是通道，$H, W$ 是空间维度。
 
@@ -166,7 +166,7 @@ Conv2d → BatchNorm2d → ReLU → Pool → ...
 | **GN (GroupNorm)** | 跨 group 内 C + 跨 H, W | 分组内归一化 | 检测/分割小 batch |
 | **SN (SwitchableNorm)** | 学习加权三种归一化 | 动态权重 | 通用 |
 
-### 3.1 Batch Normalization（BN, 2015）
+### 3.2 Batch Normalization（BN, 2015）
 
 **详见第 2 节**。BN 是 CNN 训练的事实标准。
 
@@ -179,7 +179,7 @@ nn.BatchNorm2d(num_features, eps=1e-5, momentum=0.1, affine=True)
 - 训练时 batch size ≥ 16 才有意义
 - 推理时用 running mean/var
 
-### 3.2 Layer Normalization（LN, 2016）
+### 3.3 Layer Normalization（LN, 2016）
 
 **对单个样本**的所有通道和空间维度做归一化：
 
@@ -215,7 +215,7 @@ class TransformerBlock(nn.Module):
         return x
 ```
 
-### 3.3 Instance Normalization（IN, 2016）
+### 3.4 Instance Normalization（IN, 2016）
 
 **对每个样本的每个通道**做归一化：
 
@@ -231,7 +231,7 @@ $$
 nn.InstanceNorm2d(num_features, eps=1e-5, affine=False)
 ```
 
-### 3.4 Group Normalization（GN, ECCV 2018）
+### 3.5 Group Normalization（GN, ECCV 2018）
 
 **将通道分成 G 组，每组内做 LN**：
 
@@ -272,7 +272,7 @@ nn.GroupNorm(num_groups=32, num_channels=512, eps=1e-5)
 
 GN 在小 batch 下优势明显！
 
-### 3.5 Switchable Normalization（SN, ICLR 2018）
+### 3.6 Switchable Normalization（SN, ICLR 2018）
 
 **用可学习权重**混合 BN + IN + LN：
 
@@ -293,9 +293,9 @@ import mmcv
 norm = mmcv.norm.SwitchableNorm(num_features, num_groups=1)
 ```
 
-### 3.6 五种归一化对比图
+### 3.7 五种归一化对比图
 
-### 3.7 选型决策
+### 3.8 选型决策
 
 | 任务 | 归一化 | 理由 |
 |------|--------|------|
@@ -306,7 +306,7 @@ norm = mmcv.norm.SwitchableNorm(num_features, num_groups=1)
 | 检测（mmdet 默认） | SyncBN | 跨卡同步 BN 统计量 |
 | 大模型 | LN/RMSNorm | 稳定性更好 |
 
-### 3.8 SyncBN（同步 BN）
+### 3.9 SyncBN（同步 BN）
 
 跨多卡同步 BN 统计量，解决**分布式训练中 batch 太小**的问题。
 
@@ -321,7 +321,7 @@ model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
 ## 4. 全连接层（Fully Connected Layer）
 
-### 3.1 什么是全连接层
+### 4.1 什么是全连接层
 
 全连接层（FC 层）的每个神经元与前一层的所有神经元都相连。在 CNN 中通常出现在最后几层，用于将学到的特征映射到最终的分类/回归输出。
 
@@ -337,7 +337,7 @@ model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 1000 个类别 (Softmax)
 ```
 
-### 3.2 全连接层在 CNN 中的位置
+### 4.2 全连接层在 CNN 中的位置
 
 ```
 典型 CNN 架构末尾:
@@ -349,7 +349,7 @@ GlobalAvgPool → FC → FC → Softmax → Output
 - **特征提取阶段**：多个卷积层 + 池化层，逐层提取从边缘到语义的特征
 - **分类阶段**：1~2 个全连接层，将特征映射到类别空间
 
-### 3.3 Global Average Pooling（GAP）
+### 4.3 Global Average Pooling（GAP）
 
 GAP 是用全局平均池化替代全连接层的方案：
 
@@ -372,7 +372,7 @@ GAP 是用全局平均池化替代全连接层的方案：
 
 ## 5. 完整 CNN 架构示例
 
-### 4.1 LeNet-5 完整架构
+### 5.1 LeNet-5 完整架构
 
 ```
 输入: 32×32×1 (灰度手写数字)
@@ -388,7 +388,7 @@ FC2: 84 个神经元
 Output: 10 类 (Softmax)
 ```
 
-### 4.2 一个典型图像分类 CNN 的结构规律
+### 5.2 一个典型图像分类 CNN 的结构规律
 
 ```
 输入图像
@@ -412,7 +412,7 @@ FC (可选) → Softmax → 类别概率
 | 深层 Conv | 提取完整物体语义特征 | 全局、高级 |
 | GAP/FC | 聚合特征，映射到类别空间 | 分类决策 |
 
-### 4.3 经典 CNN 各层通道数变化趋势
+### 5.3 经典 CNN 各层通道数变化趋势
 
 ```
 以 VGG-16 为例（简化）:
@@ -466,8 +466,8 @@ FC: 1000 类         → 输出概率
 |------|------|------|
 | Conv + BN + ReLU | 特征提取核心 | 提取特征 + 归一化 + 非线性激活 |
 | Pooling | 周期插入（每1-3层Conv后） | 降维、增加感受野、抗过拟合 |
-|| GAP/FC | 分类头前 | 聚合全局特征、映射到类别 |
-|| Softmax | 最后一层 | 多分类概率输出 |
+| GAP/FC | 分类头前 | 聚合全局特征、映射到类别 |
+| Softmax | 最后一层 | 多分类概率输出 |
 
 ---
 
